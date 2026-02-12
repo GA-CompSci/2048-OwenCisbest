@@ -130,11 +130,12 @@ public class Game {
                 }
             }
             
+            // Check if row changed and update all cells
             for(int col = 0; col < board[0].length; col++){
                 if(temp[col] != board[row][col]){
                     moved = true;
-                    board[row] = temp; //replace the row with new values
                 }
+                board[row][col] = temp[col]; // Always update the row
             }
             
         }
@@ -154,6 +155,40 @@ public class Game {
     public boolean moveRight() {
         // TODO: Complete this method
         boolean moved = false;
+        for(int row = 0; row < board.length; row++){
+            int[] temp = new int[BOARD_SIZE];
+
+            int copyCount = 0;
+
+            for(int col = 0; col < board[0].length; col++){
+                if(board[row][col] != 0) temp[copyCount++] = board[row][col];
+            }
+
+
+            for(int col = 0; col < board[0].length - 1; col++){
+                if(temp[col] == temp[col + 1]){
+                    temp[col] = temp[col]*2;
+
+                    score+=temp[col];
+                    //scooch all over 1
+                    for(int scooch = col+1; scooch < board[0].length-1; scooch++){
+                        temp[scooch] = temp[scooch+1];
+                    }
+                    //add a zero at the end
+                    temp[board[0].length - 1] = 0;
+                }
+            }
+            
+            // Check if row changed and update all cells
+            for(int col = 0; col < board[0].length; col++){
+                if(temp[col] != board[row][col]){
+                    moved = true;
+                }
+                board[row][col] = temp[col]; // Always update the row
+            }
+            
+        }
+        if(moved) addRandomTile();
         return moved;
     }
     
@@ -193,15 +228,16 @@ public class Game {
                 }
             }
             
+            // Check if column changed and update all cells
             for(int row = 0; row < board.length; row++){
                 if(temp[row] != board[row][col]){
                     moved = true;
-                    board[row] = temp; //replace the row with new values
                 }
+                board[row][col] = temp[row]; // Always update the column
             }
             
         }
-        if(moved) addRandomTile();        
+        if(moved) addRandomTile();
         return moved;
     }
     
