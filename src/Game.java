@@ -116,7 +116,7 @@ public class Game {
             }
 
 
-            for(int col = 0; col < board[0].length; col++){
+            for(int col = 0; col < board[0].length - 1; col++){
                 if(temp[col] == temp[col + 1]){
                     temp[col] = temp[col]*2;
 
@@ -154,7 +154,6 @@ public class Game {
     public boolean moveRight() {
         // TODO: Complete this method
         boolean moved = false;
-        
         return moved;
     }
     
@@ -170,7 +169,39 @@ public class Game {
     public boolean moveUp() {
         // TODO: Complete this method
         boolean moved = false;
-        
+        for(int col = 0; col < board[0].length; col++){
+            int[] temp = new int[BOARD_SIZE];
+
+            int copyCount = 0;
+
+            for(int row = 0; row < board.length; row++){
+                if(board[row][col] != 0) temp[copyCount++] = board[row][col];
+            }
+
+
+            for(int row = 0; row < board.length - 1; row++){
+                if(temp[row] == temp[row + 1]){
+                    temp[row] = temp[row]*2;
+
+                    score+=temp[row];
+                    //scooch all over 1
+                    for(int scooch = row+1; scooch < board.length-1; scooch++){
+                        temp[scooch] = temp[scooch+1];
+                    }
+                    //add a zero at the end
+                    temp[board.length - 1] = 0;
+                }
+            }
+            
+            for(int row = 0; row < board.length; row++){
+                if(temp[row] != board[row][col]){
+                    moved = true;
+                    board[row] = temp; //replace the row with new values
+                }
+            }
+            
+        }
+        if(moved) addRandomTile();        
         return moved;
     }
     
