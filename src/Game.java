@@ -158,24 +158,26 @@ public class Game {
         for(int row = 0; row < board.length; row++){
             int[] temp = new int[BOARD_SIZE];
 
-            int copyCount = 0;
+            int copyCount = BOARD_SIZE - 1;
 
-            for(int col = 0; col < board[0].length; col++){
-                if(board[row][col] != 0) temp[copyCount++] = board[row][col];
+            // Copy non-zero values from right to left (they accumulate on the right)
+            for(int col = board[0].length - 1; col >= 0; col--){
+                if(board[row][col] != 0) temp[copyCount--] = board[row][col];
             }
 
 
-            for(int col = 0; col < board[0].length - 1; col++){
-                if(temp[col] == temp[col + 1]){
+            // Merge from right to left
+            for(int col = board[0].length - 1; col > 0; col--){
+                if(temp[col] != 0 && temp[col] == temp[col - 1]){
                     temp[col] = temp[col]*2;
 
                     score+=temp[col];
-                    //scooch all over 1
-                    for(int scooch = col+1; scooch < board[0].length-1; scooch++){
-                        temp[scooch] = temp[scooch+1];
+                    //shift left
+                    for(int scooch = col - 1; scooch > 0; scooch--){
+                        temp[scooch] = temp[scooch - 1];
                     }
-                    //add a zero at the end
-                    temp[board[0].length - 1] = 0;
+                    //add a zero at the start
+                    temp[0] = 0;
                 }
             }
             
@@ -251,7 +253,42 @@ public class Game {
     public boolean moveDown() {
         // TODO: Complete this method
         boolean moved = false;
-        
+        for(int col = 0; col < board[0].length; col++){
+            int[] temp = new int[BOARD_SIZE];
+
+            int copyCount = BOARD_SIZE - 1;
+
+            // Copy non-zero values from bottom to top (they accumulate at the bottom)
+            for(int row = board.length - 1; row >= 0; row--){
+                if(board[row][col] != 0) temp[copyCount--] = board[row][col];
+            }
+
+
+            // Merge from bottom to top
+            for(int row = board.length - 1; row > 0; row--){
+                if(temp[row] != 0 && temp[row] == temp[row - 1]){
+                    temp[row] = temp[row]*2;
+
+                    score+=temp[row];
+                    //shift up
+                    for(int scooch = row - 1; scooch > 0; scooch--){
+                        temp[scooch] = temp[scooch - 1];
+                    }
+                    //add a zero at the start
+                    temp[0] = 0;
+                }
+            }
+            
+            // Check if column changed and update all cells
+            for(int row = 0; row < board.length; row++){
+                if(temp[row] != board[row][col]){
+                    moved = true;
+                }
+                board[row][col] = temp[row]; // Always update the column
+            }
+            
+        }
+        if(moved) addRandomTile();
         return moved;
     }
     
@@ -264,8 +301,13 @@ public class Game {
      * Hint: Check all tiles and update the hasWon field
      */
     public boolean hasWon() {
-        // TODO: Complete this method
-        
+        for(int row = 0; row < board.length; row++){
+            for(int col = 0; col < board[0].length; col++){
+                if(board[row][col] >= WIN_VALUE){
+                    return true;
+                }
+            }
+        }
         return false;
     }
     
@@ -281,8 +323,30 @@ public class Game {
      */
     public boolean isGameOver() {
         // TODO: Complete this method
+        // Check if there are empty cells
+        if(!getEmptyCells().isEmpty()) return false;
         
-        return false;
+        // Check if any tiles can be merged
+        for(int row = 0; row < board.length; row++){
+            for(int col = 0; col < board[0].length - 1; col++){
+                if(board[row][col] != 0 && board[row][col] == board[row][col + 1]){
+                    return false;
+                }
+            }
+        }
+        
+        // Check vertical 
+        for(int row = 0; row < board.length - 1; row++){
+            for(int col = 0; col < board[0].length; col++){
+                if(board[row][col] != 0 && board[row][col] == board[row + 1][col]){
+                    return false;
+                }
+            }
+        }
+        
+        // No moves possible
+        gameOver = true;
+        return true;
     }
     
     // ===================== PROVIDED METHODS - DO NOT MODIFY =====================
